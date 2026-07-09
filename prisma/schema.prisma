@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Service {
+  id          String  @id @default(uuid()) @db.Uuid
+  title       String
+  description String
+  duration    Int
+  price       Float
+  isActive    Boolean @default(true)
+
+  createdBy String    @db.Uuid
+  updatedBy String    @db.Uuid
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  bookings  Booking[]
+}
+
+model Booking {
+  id            String   @id @default(uuid()) @db.Uuid
+
+  customerName  String
+  customerEmail String
+  customerPhone String
+  bookingDate   DateTime
+  bookingTime   DateTime
+
+  status BookingStatusEnum @default(PENDING)
+
+  serviceId String  @db.Uuid
+  service   Service @relation(fields: [serviceId], references: [id])
+
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  updatedBy String   @db.Uuid
+}
+
+enum BookingStatusEnum {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
