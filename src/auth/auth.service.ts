@@ -17,12 +17,13 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
-    private readonly logger:PinoLogger,
+    private readonly logger: PinoLogger,
   ) {}
   async signup(dto: SignUpDto): Promise<void> {
     const existingUser = await this.userService.getUserByEmail(dto.email);
-    if (!existingUser) {
+    if (existingUser) {
       //if user exists throw
+
       throw new ConflictException('User already exists');
     }
     await this.userService.create(dto); //else create the user
@@ -56,7 +57,7 @@ export class AuthService {
 
       return this.generateAuthTokens(user.id, user.email);
     } catch (error) {
-      this.logger.error('Tokens refreshing failed :',error)
+      this.logger.error('Tokens refreshing failed :', error.message);
       throw new UnauthorizedException('Invalid refresh token');
     }
   }

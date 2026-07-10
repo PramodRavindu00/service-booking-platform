@@ -25,6 +25,7 @@ export class AuthController {
   }
 
   @Post('/refresh')
+  @PublicRoute()
   @UseInterceptors(SetRefreshTokenCookie)
   refresh(@Cookie('refreshToken') refreshToken: string) {
     return this.authService.refresh(refreshToken);

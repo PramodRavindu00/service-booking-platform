@@ -53,7 +53,7 @@ export class AuthGuard implements CanActivate {
       req.user = user;
       return true; // return true if no error
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error(error.message);
       throw new UnauthorizedException('Invalid or expired token');
     }
   }
