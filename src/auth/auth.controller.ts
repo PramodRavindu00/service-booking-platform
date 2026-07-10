@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseInterceptors,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { PublicRoute } from 'src/common/decorators/public-route.decorator';
 import { SetRefreshTokenCookie } from 'src/common/interceptors/set-refresh-token-cookie.interceptor';
@@ -14,28 +22,34 @@ export class AuthController {
 
   @Post('/signup')
   @PublicRoute()
+  @HttpCode(HttpStatus.CREATED)
   signup(@Body() dto: SignUpDto) {
     return this.authService.signup(dto);
   }
 
   @Post('/login')
   @PublicRoute()
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(SetRefreshTokenCookie)
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
 
   @Post('/refresh')
   @PublicRoute()
+  @HttpCode(HttpStatus.OK)
   @UseInterceptors(SetRefreshTokenCookie)
   refresh(@Cookie('refreshToken') refreshToken: string) {
     return this.authService.refresh(refreshToken);
   }
 
   @Post('/logout')
+  @HttpCode(HttpStatus.OK)
   @UseInterceptors(ClearRefreshTokenCookie)
   logout() {}
 
   @Get('/me')
+  @HttpCode(HttpStatus.OK)
   getCurrentUser(@CurrentUser() user: CurrentUserType) {
     return user;
   }
