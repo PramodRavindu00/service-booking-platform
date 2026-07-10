@@ -1,3 +1,5 @@
+import { Request } from 'express';
+
 export class CurrentUserType {
   id: string;
   email: string;
@@ -14,8 +16,4 @@ export interface AuthResult {
 
 export interface RequestWithUser extends Request {
   user: CurrentUserType;
-}
-
-export interface ExtendedRequest extends Request {
-  cookies?: Record<string, string>;
 }

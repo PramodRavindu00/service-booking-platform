@@ -3,11 +3,11 @@ import {
     ExecutionContext,
     NotFoundException,
   } from '@nestjs/common';
-import { ExtendedRequest } from '../constants/constants';
+import { Request } from 'express';
   
   const CookieParamFactory = createParamDecorator(
     (cookieName: string, ctx: ExecutionContext) => {
-      const request = ctx.switchToHttp().getRequest<ExtendedRequest>();
+      const request = ctx.switchToHttp().getRequest<Request>();
       const cookie = request.cookies?.[cookieName];
   
       if (!cookie) {

@@ -9,7 +9,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { pinoHttpConfig } from './common/config/logger.config';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { AuthGuard } from './common/guards/auth.guard';
+
 
 @Module({
   imports: [
@@ -33,6 +34,6 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     PrismaModule,
   ],
   controllers: [],
-  providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],  // by default protect all guards
+  providers: [{ provide: APP_GUARD, useClass: AuthGuard }],  // by default protect all guards
 })
 export class AppModule {}
