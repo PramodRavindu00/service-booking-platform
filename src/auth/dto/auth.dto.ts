@@ -13,7 +13,7 @@ export class SignUpDto extends AuthBaseDto {
   @Min(8)
   password: string;
 }
-export class LoginUpDto extends AuthBaseDto {
+export class LoginDto extends AuthBaseDto {
   @IsString()
   @IsNotEmpty()
   password: string;

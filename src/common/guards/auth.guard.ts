@@ -10,7 +10,7 @@ import { PinoLogger } from 'nestjs-pino';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_ROUTE } from '../decorators/public-route.decorator';
 import { JwtPayload, RequestWithUser } from '../constants/constants';
-import { UserService } from 'src/users/user.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {

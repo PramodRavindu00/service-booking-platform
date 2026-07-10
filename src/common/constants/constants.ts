@@ -9,7 +9,7 @@ export interface JwtPayload {
   email: string;
 }
 
-export interface AuthResult {
+export interface AuthTokens {
   refreshToken: string;
   accessToken: string;
 }
