@@ -1,9 +1,9 @@
 process.env.TZ = 'UTC';
 
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
-import { ValidationPipe } from '@nestjs/common';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { Logger, LoggerErrorInterceptor } from 'nestjs-pino';
 import { PrismaExceptionFilter } from './common/filters/prisma.exception.filter';
 
@@ -16,7 +16,12 @@ async function bootstrap() {
   });
   const logger = app.get(Logger);
   app.useLogger(logger);
-  app.useGlobalInterceptors(new LoggerErrorInterceptor());
+  app.useGlobalInterceptors(
+    new LoggerErrorInterceptor(),
+    new ClassSerializerInterceptor(app.get(Reflector), {
+      excludeExtraneousValues: true,
+    }),
+  );
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

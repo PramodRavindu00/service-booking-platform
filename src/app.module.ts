@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { ServicesModule } from './services/services.module';
-import { BookingsModule } from './bookings/bookings.module';
+import { UserModule } from './users/user.module';
+import { ServiceModule } from './service/service.module';
+import { BookingModule } from './booking/booking.module';
 import { PrismaModule } from './common/prisma/prisma.module';
 import { LoggerModule } from 'nestjs-pino';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -10,7 +10,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { pinoHttpConfig } from './common/config/logger.config';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './common/guards/auth.guard';
-
 
 @Module({
   imports: [
@@ -28,12 +27,12 @@ import { AuthGuard } from './common/guards/auth.guard';
       }),
     }),
     AuthModule,
-    UsersModule,
-    ServicesModule,
-    BookingsModule,
+    UserModule,
+    ServiceModule,
+    BookingModule,
     PrismaModule,
   ],
   controllers: [],
-  providers: [{ provide: APP_GUARD, useClass: AuthGuard }],  // by default protect all guards
+  providers: [{ provide: APP_GUARD, useClass: AuthGuard }], // by default protect all guards
 })
 export class AppModule {}

@@ -8,15 +8,15 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { PinoLogger } from 'nestjs-pino';
 import { Reflector } from '@nestjs/core';
-import { UsersService } from 'src/users/users.service';
 import { IS_PUBLIC_ROUTE } from '../decorators/public-route.decorator';
 import { JwtPayload, RequestWithUser } from '../constants/constants';
+import { UserService } from 'src/users/user.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly userService: UsersService,
+    private readonly userService: UserService,
     private readonly logger: PinoLogger,
     private reflector: Reflector,
   ) {
