@@ -11,6 +11,8 @@ import { pinoHttpConfig } from './common/config/logger.config';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './common/guards/auth.guard';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -33,8 +35,9 @@ import { GlobalExceptionFilter } from './common/filters/global-exception.filter'
     BookingModule,
     PrismaModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [
+    AppService,
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },
     { provide: APP_GUARD, useClass: AuthGuard }, // by default protect all routes
   ],
