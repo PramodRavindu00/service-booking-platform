@@ -5,6 +5,7 @@ import {
   IsDate,
   IsDateString,
   IsEmail,
+  IsEnum,
   IsIn,
   IsNotEmpty,
   IsOptional,
@@ -12,6 +13,7 @@ import {
   IsUUID,
   MinDate,
 } from 'class-validator';
+import { PaginationQueryDto } from 'src/common/utils/paginate';
 
 export class CreateBookingDto {
   @ApiProperty({ example: 'John Doe', description: 'Customer full name' })
@@ -27,7 +29,10 @@ export class CreateBookingDto {
   @IsNotEmpty()
   customerEmail: string;
 
-  @ApiProperty({ example: '+94771234567', description: 'Customer phone number' })
+  @ApiProperty({
+    example: '+94771234567',
+    description: 'Customer phone number',
+  })
   @IsString()
   @IsNotEmpty()
   customerPhone: string;
@@ -128,7 +133,10 @@ export class BookingResponseDto {
   @Type(() => BookingServiceResponseDto)
   service: BookingServiceResponseDto;
 
-  @ApiPropertyOptional({ example: 'Please arrive 5 minutes early', nullable: true })
+  @ApiPropertyOptional({
+    example: 'Please arrive 5 minutes early',
+    nullable: true,
+  })
   @Expose()
   notes?: string | null;
 
@@ -140,9 +148,41 @@ export class BookingResponseDto {
   @Expose()
   updatedAt: Date;
 
-  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000', nullable: true })
+  @ApiProperty({
+    example: '550e8400-e29b-41d4-a716-446655440000',
+    nullable: true,
+  })
   @Expose()
   updatedBy: string;
+}
+
+export class BookingQueryDto extends PaginationQueryDto {
+  @IsOptional()
+  @IsString()
+  customerName?: string;
+
+  @IsOptional()
+  @IsEmail()
+  customerEmail?: string;
+  
+  @IsOptional()
+  @IsString()
+  customerPhone?: string;
+
+  @IsOptional()
+  @IsDateString()
+  bookingDate?: Date;
+
+  @IsOptional()
+  @IsDateString()
+  bookingTime?: Date;
+  
+  @IsOptional()
+  @IsEnum(BookingStatusEnum)
+  status?: BookingStatusEnum;
+  @IsOptional()
+  @IsString()
+  service?: string;
 }
 
 export class BookingListResponseDto {

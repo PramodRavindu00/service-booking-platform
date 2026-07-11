@@ -18,6 +18,7 @@ import {
 } from '@nestjs/swagger';
 import {
   BookingListResponseDto,
+  BookingQueryDto,
   BookingResponseDto,
   CreateBookingDto,
   UpdateBookingStatusDto,
@@ -25,7 +26,6 @@ import {
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { BookingService } from './booking.service';
 import { CurrentUserType } from 'src/common/constants/constants';
-import { PaginationQueryDto } from 'src/common/utils/paginate';
 import { PublicRoute } from 'src/common/decorators/public-route.decorator';
 
 @ApiTags('Booking')
@@ -61,7 +61,7 @@ export class BookingController {
     type: BookingListResponseDto,
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  getAll(@Query() query: PaginationQueryDto) {
+  getAll(@Query() query: BookingQueryDto) {
     return this.bookingService.getAll(query);
   }
 
