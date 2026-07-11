@@ -20,7 +20,7 @@ model Service {
   id          String  @id @default(uuid()) @db.Uuid
   title       String
   description String
-  duration    Int
+  duration    Int    // duration considers in minutes only as whole numbers
   price       Float
   isActive    Boolean @default(true)
 
