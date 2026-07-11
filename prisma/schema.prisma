@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client"
+  provider     = "prisma-client"
   output       = "../generated/prisma"
   moduleFormat = "cjs"
 }
@@ -20,26 +20,26 @@ model Service {
   id          String  @id @default(uuid()) @db.Uuid
   title       String
   description String
-  duration    Int    // duration considers in minutes only as whole numbers
+  duration    Int // duration considers in minutes only as whole numbers
   price       Float
   isActive    Boolean @default(true)
 
-  createdBy String    @db.Uuid
-  updatedBy String    @db.Uuid
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdBy String   @db.Uuid
+  updatedBy String   @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  bookings  Booking[]
+  bookings Booking[]
 }
 
 model Booking {
-  id            String   @id @default(uuid()) @db.Uuid
+  id String @id @default(uuid()) @db.Uuid
 
   customerName  String
   customerEmail String
   customerPhone String
-  bookingDate   DateTime
-  bookingTime   DateTime
+  bookingDate   DateTime @db.Date
+  bookingTime   DateTime @db.Time(0)
 
   status BookingStatusEnum @default(PENDING)
 
@@ -50,7 +50,9 @@ model Booking {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  updatedBy String   @db.Uuid
+  updatedBy String?  @db.Uuid
+
+  @@index([serviceId])
 }
 
 enum BookingStatusEnum {

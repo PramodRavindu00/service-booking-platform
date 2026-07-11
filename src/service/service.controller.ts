@@ -21,7 +21,7 @@ export class ServiceController {
 
   @Post()
   create(@Body() dto: CreateServiceDto, @CurrentUser() user: CurrentUserType) {
-    return this.serviceService.create(dto,user)
+    return this.serviceService.create(dto, user);
   }
 
   @Patch(':serviceId')
@@ -30,25 +30,21 @@ export class ServiceController {
     @Body() dto: UpdateServiceDto,
     @CurrentUser() user: CurrentUserType,
   ) {
-    return this.serviceService.update(serviceId,dto,user)
-
-  }
-
-  @Get(':serviceId')
-  getOneById(@Param('serviceId', new ParseUUIDPipe()) serviceId: string) {
-    return this.serviceService.getOneById(serviceId)
-
-  }
-
-  @Get()
-  getAll(@Query() query: PaginationQueryDto) {
-    return this.serviceService.getAll(query)
-
+    return this.serviceService.update(serviceId, dto, user);
   }
 
   @Delete(':serviceId')
   delete(@Param('serviceId', new ParseUUIDPipe()) serviceId: string) {
-    return this.serviceService.delete(serviceId)
+    return this.serviceService.delete(serviceId);
+  }
 
+  @Get()
+  getAll(@Query() query: PaginationQueryDto) {
+    return this.serviceService.getAll(query);
+  }
+
+  @Get(':serviceId')
+  getOneById(@Param('serviceId', new ParseUUIDPipe()) serviceId: string) {
+    return this.serviceService.getOneById(serviceId);
   }
 }
