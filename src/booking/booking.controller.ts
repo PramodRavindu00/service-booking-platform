@@ -41,7 +41,10 @@ export class BookingController {
     description: 'Public endpoint — anyone can submit a booking.',
   })
   @ApiResponse({ status: 201, description: 'Booking created successfully' })
-  @ApiResponse({ status: 400, description: 'Validation failed or service inactive' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation failed or service inactive',
+  })
   @ApiResponse({ status: 404, description: 'Service not found' })
   @ApiResponse({
     status: 409,
@@ -118,7 +121,10 @@ export class BookingController {
     type: String,
     format: 'uuid',
   })
-  @ApiResponse({ status: 200, description: 'Booking status updated successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Booking status updated successfully',
+  })
   @ApiResponse({ status: 400, description: 'Invalid status transition' })
   @ApiResponse({ status: 404, description: 'Booking not found' })
   updateStatus(
