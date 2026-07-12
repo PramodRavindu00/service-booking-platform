@@ -28,15 +28,16 @@ import {
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { CurrentUserType } from 'src/common/constants/constants';
 import { PaginationQueryDto } from 'src/common/utils/paginate';
+import { PublicRoute } from 'src/common/decorators/public-route.decorator';
 
 @ApiTags('Service')
-@ApiBearerAuth('access-token')
 @Controller('service')
 export class ServiceController {
   constructor(private readonly serviceService: ServiceService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Create a new service' })
   @ApiResponse({ status: 201, description: 'Service created successfully' })
   @ApiResponse({ status: 400, description: 'Validation failed' })
@@ -47,6 +48,7 @@ export class ServiceController {
 
   @Patch(':serviceId')
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Update an existing service' })
   @ApiParam({
     name: 'serviceId',
@@ -68,6 +70,7 @@ export class ServiceController {
 
   @Delete(':serviceId')
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Delete a service' })
   @ApiParam({
     name: 'serviceId',
@@ -83,6 +86,7 @@ export class ServiceController {
   }
 
   @Get()
+  @PublicRoute()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'List all services' })
   @ApiResponse({
@@ -90,12 +94,12 @@ export class ServiceController {
     description: 'Paginated list of services',
     type: ServiceListResponseDto,
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
   getAll(@Query() query: PaginationQueryDto) {
     return this.serviceService.getAll(query);
   }
 
   @Get(':serviceId')
+  @PublicRoute()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get a service by ID' })
   @ApiParam({
@@ -109,7 +113,6 @@ export class ServiceController {
     description: 'Service details',
     type: ServiceResponseDto,
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Service not found' })
   getOneById(@Param('serviceId', new ParseUUIDPipe()) serviceId: string) {
     return this.serviceService.getOneById(serviceId);
