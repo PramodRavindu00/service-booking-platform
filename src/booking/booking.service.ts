@@ -26,17 +26,16 @@ export class BookingService {
   async create(dto: CreateBookingDto) {
     const service = await this.serviceService.getOneById(dto.serviceId);
 
-    if (!service) {
-      throw new NotFoundException('Service not found');
-    } else if (!service.isActive) {
+    if (!service.isActive) {
       throw new BadRequestException('Service is not active');
     }
 
+    const bookingTime = this.toBookingTime(dto.bookingTime);
     const conflictingBooking = await this.prisma.booking.findFirst({
       where: {
         serviceId: dto.serviceId,
         bookingDate: dto.bookingDate,
-        bookingTime: dto.bookingTime,
+        bookingTime: bookingTime,
       },
     });
 
@@ -47,7 +46,7 @@ export class BookingService {
     }
 
     await this.prisma.booking.create({
-      data: { ...dto },
+      data: { ...dto, bookingTime: this.toBookingTime(dto.bookingTime) },
     });
   }
 
@@ -67,7 +66,7 @@ export class BookingService {
   }
 
   async getOneById(id: string) {
-    const booking = await this.prisma.booking.findUnique({
+    const booking = await this.prisma.booking.findUniqueOrThrow({
       where: { id },
       include: {
         service: { select: { title: true } },
@@ -94,8 +93,8 @@ export class BookingService {
     } else if (booking.status === BookingStatusEnum.CANCELLED) {
       throw new BadRequestException('Cannot update a cancelled booking');
     } else if (
-      status === BookingStatusEnum.COMPLETED &&
-      booking.status === BookingStatusEnum.CONFIRMED
+      status === BookingStatusEnum.CONFIRMED &&
+      booking.status === BookingStatusEnum.COMPLETED
     ) {
       throw new BadRequestException(
         'Cannot reverse an already completed booking',
@@ -106,6 +105,11 @@ export class BookingService {
         data: { status, updatedBy: user.id },
       });
     }
+  }
+
+  private toBookingTime(time: string): Date {
+    const [h, m] = time.split(':').map(Number);
+    return new Date(Date.UTC(1970, 0, 1, h, m, 0));
   }
 
   private buildFiltersAndPaginateFromQuery(query: BookingQueryDto) {

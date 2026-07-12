@@ -106,7 +106,6 @@ export class BookingController {
   }
 
   @Post(':bookingId/update-status')
-  @PublicRoute()
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('access-token')
   @ApiOperation({
