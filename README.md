@@ -23,7 +23,7 @@ A NestJS REST API for managing bookable services and customer appointments. Staf
 
 - Node.js 22+ (recommended)
 - PostgreSQL 14+
-- npm
+- npm/pnpm(recommended)/yarn
 
 ### Setup
 
