@@ -14,9 +14,11 @@ export class ServiceService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateServiceDto, user: CurrentUserType) {
-    await this.prisma.service.create({
+    const createdService = await this.prisma.service.create({
       data: { ...dto, createdBy: user.id, updatedBy: user.id },
     });
+
+    return plainToInstance(ServiceResponseDto, createdService);
   }
 
   async update(id: string, dto: UpdateServiceDto, user: CurrentUserType) {
@@ -27,13 +29,16 @@ export class ServiceService {
   }
 
   async getOneById(id: string) {
-    const service = await this.prisma.service.findUnique({ where: { id } });
+    const service = await this.prisma.service.findUniqueOrThrow({ where: { id } });
     return plainToInstance(ServiceResponseDto, service);
   }
 
   async getAll(query: PaginationQueryDto) {
     const [services, count] = await Promise.all([
-      this.prisma.service.findMany({ ...paginateData(query) }),
+      this.prisma.service.findMany({
+        ...paginateData(query),
+        orderBy: { createdAt: 'desc' },
+      }),
       this.prisma.service.count(),
     ]);
     return { data: plainToInstance(ServiceResponseDto, services), count };

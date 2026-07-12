@@ -11,6 +11,7 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  Matches,
   MinDate,
 } from 'class-validator';
 import { PaginationQueryDto } from 'src/common/utils/paginate';
@@ -57,12 +58,14 @@ export class CreateBookingDto {
   bookingDate: Date;
 
   @ApiProperty({
-    example: '2026-07-15T10:30:00.000Z',
-    description: 'Booking time as an ISO date-time string',
+    example: '10:30',
+    description: 'Booking time',
   })
-  @IsDateString()
+  @Matches(/^([01]\d|2[0-3]):[0-5]\d$/, {
+    message: 'bookingTime must be HH:mm',
+  })
   @IsNotEmpty()
-  bookingTime: Date;
+  bookingTime: string;
 
   @ApiProperty({
     example: '550e8400-e29b-41d4-a716-446655440000',
@@ -164,7 +167,7 @@ export class BookingQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsEmail()
   customerEmail?: string;
-  
+
   @IsOptional()
   @IsString()
   customerPhone?: string;
@@ -176,7 +179,7 @@ export class BookingQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsDateString()
   bookingTime?: Date;
-  
+
   @IsOptional()
   @IsEnum(BookingStatusEnum)
   status?: BookingStatusEnum;
