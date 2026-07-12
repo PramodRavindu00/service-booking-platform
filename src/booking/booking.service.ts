@@ -30,12 +30,11 @@ export class BookingService {
       throw new BadRequestException('Service is not active');
     }
 
-    const bookingTime = this.toBookingTime(dto.bookingTime);
     const conflictingBooking = await this.prisma.booking.findFirst({
       where: {
         serviceId: dto.serviceId,
         bookingDate: dto.bookingDate,
-        bookingTime: bookingTime,
+        bookingTime: dto.bookingTime,
       },
     });
 
@@ -46,7 +45,7 @@ export class BookingService {
     }
 
     await this.prisma.booking.create({
-      data: { ...dto, bookingTime: this.toBookingTime(dto.bookingTime) },
+      data: { ...dto },
     });
   }
 
@@ -105,11 +104,6 @@ export class BookingService {
         data: { status, updatedBy: user.id },
       });
     }
-  }
-
-  private toBookingTime(time: string): Date {
-    const [h, m] = time.split(':').map(Number);
-    return new Date(Date.UTC(1970, 0, 1, h, m, 0));
   }
 
   private buildFiltersAndPaginateFromQuery(query: BookingQueryDto) {

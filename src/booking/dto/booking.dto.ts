@@ -1,6 +1,6 @@
 import { BookingStatusEnum } from '@prisma/generated';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Expose, Type } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
 import {
   IsDate,
   IsDateString,
@@ -11,10 +11,15 @@ import {
   IsOptional,
   IsString,
   IsUUID,
-  Matches,
   MinDate,
 } from 'class-validator';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import utc from 'dayjs/plugin/utc';
 import { PaginationQueryDto } from 'src/common/utils/paginate';
+
+dayjs.extend(customParseFormat);
+dayjs.extend(utc);
 
 export class CreateBookingDto {
   @ApiProperty({ example: 'John Doe', description: 'Customer full name' })
@@ -44,28 +49,30 @@ export class CreateBookingDto {
     type: String,
     format: 'date',
   })
-  @Type(() => Date)
+  @Transform(({ value }) => {
+    if (value instanceof Date) return value;
+    const parsed = dayjs.utc(value, 'YYYY-MM-DD', true);
+    return parsed.isValid() ? parsed.toDate() : value;
+  })
   @IsDate()
-  @MinDate(
-    () => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      return today;
-    },
-    { message: 'Booking date cannot be a past date' },
-  )
+  @MinDate(() => dayjs.utc().startOf('day').toDate(), {
+    message: 'Booking date cannot be a past date',
+  })
   @IsNotEmpty()
   bookingDate: Date;
 
   @ApiProperty({
     example: '10:30',
-    description: 'Booking time',
+    description: 'Booking time (HH:mm)',
   })
-  @Matches(/^([01]\d|2[0-3]):[0-5]\d$/, {
-    message: 'bookingTime must be HH:mm',
+  @Transform(({ value }) => {
+    if (value instanceof Date) return value;
+    const parsed = dayjs.utc(`1970-01-01 ${value}`, 'YYYY-MM-DD HH:mm', true);
+    return parsed.isValid() ? parsed.toDate() : value;
   })
+  @IsDate({ message: 'bookingTime must be HH:mm' })
   @IsNotEmpty()
-  bookingTime: string;
+  bookingTime: Date;
 
   @ApiProperty({
     example: '550e8400-e29b-41d4-a716-446655440000',
