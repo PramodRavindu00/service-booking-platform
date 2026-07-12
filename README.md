@@ -23,7 +23,7 @@ A NestJS REST API for managing bookable services and customer appointments. Staf
 
 - Node.js 22+ (recommended)
 - PostgreSQL 14+
-- npm/pnpm(recommended)/yarn
+- pnpm
 
 ### Setup
 
@@ -33,7 +33,7 @@ git clone <repository-url>
 cd service-booking-platform
 
 # Install dependencies (runs `prisma generate` via postinstall)
-npm install
+pnpm install
 
 # Configure environment
 cp .env.example .env
@@ -80,14 +80,14 @@ The Prisma schema lives in `prisma/schema.prisma`. The generated client is writt
 
 ```bash
 # Development (watch mode)
-npm run dev
+pnpm run dev
 
 # Start once (applies pending migrations, then starts)
-npm start
+pnpm start
 
 # Production
-npm run build
-npm run prod
+pnpm run build
+pnpm run prod
 ```
 
 The API listens on `http://localhost:8080` (or the port set in `PORT`).
