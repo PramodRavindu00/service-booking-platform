@@ -1,10 +1,11 @@
 import { BookingStatusEnum } from '@prisma/generated';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Expose, Type } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
 import {
   IsDate,
   IsDateString,
   IsEmail,
+  IsEnum,
   IsIn,
   IsNotEmpty,
   IsOptional,
@@ -12,6 +13,13 @@ import {
   IsUUID,
   MinDate,
 } from 'class-validator';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import utc from 'dayjs/plugin/utc';
+import { PaginationQueryDto } from 'src/common/utils/paginate';
+
+dayjs.extend(customParseFormat);
+dayjs.extend(utc);
 
 export class CreateBookingDto {
   @ApiProperty({ example: 'John Doe', description: 'Customer full name' })
@@ -27,7 +35,10 @@ export class CreateBookingDto {
   @IsNotEmpty()
   customerEmail: string;
 
-  @ApiProperty({ example: '+94771234567', description: 'Customer phone number' })
+  @ApiProperty({
+    example: '+94771234567',
+    description: 'Customer phone number',
+  })
   @IsString()
   @IsNotEmpty()
   customerPhone: string;
@@ -38,24 +49,28 @@ export class CreateBookingDto {
     type: String,
     format: 'date',
   })
-  @Type(() => Date)
+  @Transform(({ value }) => {
+    if (value instanceof Date) return value;
+    const parsed = dayjs.utc(value, 'YYYY-MM-DD', true);
+    return parsed.isValid() ? parsed.toDate() : value;
+  })
   @IsDate()
-  @MinDate(
-    () => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      return today;
-    },
-    { message: 'Booking date cannot be a past date' },
-  )
+  @MinDate(() => dayjs.utc().startOf('day').toDate(), {
+    message: 'Booking date cannot be a past date',
+  })
   @IsNotEmpty()
   bookingDate: Date;
 
   @ApiProperty({
-    example: '2026-07-15T10:30:00.000Z',
-    description: 'Booking time as an ISO date-time string',
+    example: '10:30',
+    description: 'Booking time (HH:mm)',
   })
-  @IsDateString()
+  @Transform(({ value }) => {
+    if (value instanceof Date) return value;
+    const parsed = dayjs.utc(`1970-01-01 ${value}`, 'YYYY-MM-DD HH:mm', true);
+    return parsed.isValid() ? parsed.toDate() : value;
+  })
+  @IsDate({ message: 'bookingTime must be HH:mm' })
   @IsNotEmpty()
   bookingTime: Date;
 
@@ -128,7 +143,10 @@ export class BookingResponseDto {
   @Type(() => BookingServiceResponseDto)
   service: BookingServiceResponseDto;
 
-  @ApiPropertyOptional({ example: 'Please arrive 5 minutes early', nullable: true })
+  @ApiPropertyOptional({
+    example: 'Please arrive 5 minutes early',
+    nullable: true,
+  })
   @Expose()
   notes?: string | null;
 
@@ -140,9 +158,41 @@ export class BookingResponseDto {
   @Expose()
   updatedAt: Date;
 
-  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000', nullable: true })
+  @ApiProperty({
+    example: '550e8400-e29b-41d4-a716-446655440000',
+    nullable: true,
+  })
   @Expose()
   updatedBy: string;
+}
+
+export class BookingQueryDto extends PaginationQueryDto {
+  @IsOptional()
+  @IsString()
+  customerName?: string;
+
+  @IsOptional()
+  @IsEmail()
+  customerEmail?: string;
+
+  @IsOptional()
+  @IsString()
+  customerPhone?: string;
+
+  @IsOptional()
+  @IsDateString()
+  bookingDate?: Date;
+
+  @IsOptional()
+  @IsDateString()
+  bookingTime?: Date;
+
+  @IsOptional()
+  @IsEnum(BookingStatusEnum)
+  status?: BookingStatusEnum;
+  @IsOptional()
+  @IsString()
+  service?: string;
 }
 
 export class BookingListResponseDto {

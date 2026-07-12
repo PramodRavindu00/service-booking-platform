@@ -5,11 +5,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
-import { BookingResponseDto, CreateBookingDto } from './dto/booking.dto';
+import {
+  BookingQueryDto,
+  BookingResponseDto,
+  CreateBookingDto,
+} from './dto/booking.dto';
 import { CurrentUserType } from 'src/common/constants/constants';
 import { plainToInstance } from 'class-transformer';
 import paginateData, { PaginationQueryDto } from 'src/common/utils/paginate';
-import { BookingStatusEnum } from '@prisma/generated';
+import { BookingStatusEnum, Prisma } from '@prisma/generated';
 import { ServiceService } from 'src/service/service.service';
 
 @Injectable()
@@ -22,9 +26,7 @@ export class BookingService {
   async create(dto: CreateBookingDto) {
     const service = await this.serviceService.getOneById(dto.serviceId);
 
-    if (!service) {
-      throw new NotFoundException('Service not found');
-    } else if (!service.isActive) {
+    if (!service.isActive) {
       throw new BadRequestException('Service is not active');
     }
 
@@ -47,10 +49,12 @@ export class BookingService {
     });
   }
 
-  async getAll(query: PaginationQueryDto) {
+  async getAll(query: BookingQueryDto) {
+    const { where, paginate } = this.buildFiltersAndPaginateFromQuery(query);
     const [bookings, count] = await Promise.all([
       this.prisma.booking.findMany({
-        ...paginateData(query),
+        where,
+        ...paginateData(paginate),
         include: {
           service: { select: { title: true } },
         },
@@ -61,7 +65,7 @@ export class BookingService {
   }
 
   async getOneById(id: string) {
-    const booking = await this.prisma.booking.findUnique({
+    const booking = await this.prisma.booking.findUniqueOrThrow({
       where: { id },
       include: {
         service: { select: { title: true } },
@@ -88,8 +92,8 @@ export class BookingService {
     } else if (booking.status === BookingStatusEnum.CANCELLED) {
       throw new BadRequestException('Cannot update a cancelled booking');
     } else if (
-      status === BookingStatusEnum.COMPLETED &&
-      booking.status === BookingStatusEnum.CONFIRMED
+      status === BookingStatusEnum.CONFIRMED &&
+      booking.status === BookingStatusEnum.COMPLETED
     ) {
       throw new BadRequestException(
         'Cannot reverse an already completed booking',
@@ -100,5 +104,59 @@ export class BookingService {
         data: { status, updatedBy: user.id },
       });
     }
+  }
+
+  private buildFiltersAndPaginateFromQuery(query: BookingQueryDto) {
+    const where: Prisma.BookingWhereInput = {
+      ...(query.customerName && {
+        customerName: {
+          contains: query.customerName,
+          mode: 'insensitive',
+        },
+      }),
+
+      ...(query.customerEmail && {
+        customerEmail: query.customerEmail,
+      }),
+
+      ...(query.customerPhone && {
+        customerPhone: query.customerPhone,
+      }),
+
+      ...(query.bookingDate && {
+        bookingDate: query.bookingDate,
+      }),
+
+      ...(query.bookingTime && {
+        bookingTime: query.bookingTime,
+      }),
+
+      ...(query.status && {
+        status: query.status,
+      }),
+
+      ...(query.service && {
+        service: {
+          title: {
+            contains: query.service,
+            mode: 'insensitive',
+          },
+        },
+      }),
+    };
+
+    const paginate: PaginationQueryDto = {
+      ...(query.all && {
+        all: query.all,
+      }),
+      ...(query.page && {
+        page: query.page,
+      }),
+      ...(query.size && {
+        size: query.size,
+      }),
+    };
+
+    return { where, paginate };
   }
 }
